@@ -40,77 +40,94 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  
-  /* Custom Animations */
-  @keyframes shine {
-    from {
-      left: -100%;
-    }
-    to {
-      left: 100%;
-    }
-  }
 }
 
 :root {
-  /* Premium Farm - Light Mode (Keep as fallback) */
-  --primary: #d4af37; /* Gold */
-  --primary-foreground: #0c0d09;
+  /* Paleta de Cores - Minimalismo Corporativo Moderno */
+  /* Verde Esmeralda para ações e destaques */
+  --primary: #10B981;
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #10B981;
+  --sidebar-primary-foreground: #FFFFFF;
   
-  --radius: 0.75rem;
+  /* Cores de Gráficos em tons de verde */
+  --chart-1: #D1FAE5;
+  --chart-2: #6EE7B7;
+  --chart-3: #10B981;
+  --chart-4: #059669;
+  --chart-5: #047857;
   
-  --background: #f0ede5; /* Ivory */
-  --foreground: #0c0d09;
-  --card: #ffffff;
-  --card-foreground: #0c0d09;
-  --popover: #ffffff;
-  --popover-foreground: #0c0d09;
+  --radius: 0.65rem;
   
-  --secondary: #e5e1d5;
-  --secondary-foreground: #233a1e;
-  --muted: #e5e1d5;
-  --muted-foreground: #5a5a5a;
+  /* Fundo e Textos - Tema Claro */
+  --background: #FFFFFF;
+  --foreground: #1F2937;
+  --card: #FFFFFF;
+  --card-foreground: #1F2937;
+  --popover: #FFFFFF;
+  --popover-foreground: #1F2937;
   
-  --accent: #233a1e; /* Forest */
-  --accent-foreground: #f0ede5;
+  /* Secundário e Muted */
+  --secondary: #F9FAFB;
+  --secondary-foreground: #4B5563;
+  --muted: #F3F4F6;
+  --muted-foreground: #6B7280;
   
-  --destructive: #7f1d1d;
-  --destructive-foreground: #f0ede5;
+  /* Accent - Verde Claro */
+  --accent: #D1FAE5;
+  --accent-foreground: #047857;
   
-  --border: #d1cfc7;
-  --input: #f0ede5;
-  --ring: #d4af37;
+  /* Destrutivo - Vermelho */
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  
+  /* Bordas e Input */
+  --border: #E5E7EB;
+  --input: #F9FAFB;
+  --ring: #10B981;
+  
+  /* Sidebar */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1F2937;
+  --sidebar-accent: #D1FAE5;
+  --sidebar-accent-foreground: #047857;
+  --sidebar-border: #E5E7EB;
+  --sidebar-ring: #10B981;
 }
 
 .dark {
-  /* Premium Farm - Dark Mode (Primary) */
-  --primary: #d4af37; /* Gold */
-  --primary-foreground: #0c0d09;
-  
-  --background: #0c0d09; /* Ultra Dark Olive */
-  --foreground: #f0ede5; /* Ivory text */
-  
-  --card: #141610; /* Deep Olive */
-  --card-foreground: #f0ede5;
-  
-  --popover: #141610;
-  --popover-foreground: #f0ede5;
-  
-  --secondary: #1a1c15;
-  --secondary-foreground: #d4af37;
-  
-  --muted: #1a1c15;
-  --muted-foreground: #8a8a8a;
-  
-  --accent: #233a1e; /* Forest Green */
-  --accent-foreground: #d4af37;
-  
-  --destructive: #991b1b;
-  --destructive-foreground: #f0ede5;
-  
-  --border: rgba(255, 255, 255, 0.05);
-  --input: rgba(255, 255, 255, 0.03);
-  --ring: #d4af37;
+  --primary: var(--color-blue-700);
+  --primary-foreground: var(--color-blue-50);
+  --sidebar-primary: var(--color-blue-500);
+  --sidebar-primary-foreground: var(--color-blue-50);
+  --background: oklch(0.141 0.005 285.823);
+  --foreground: oklch(0.85 0.005 65);
+  --card: oklch(0.21 0.006 285.885);
+  --card-foreground: oklch(0.85 0.005 65);
+  --popover: oklch(0.21 0.006 285.885);
+  --popover-foreground: oklch(0.85 0.005 65);
+  --secondary: oklch(0.24 0.006 286.033);
+  --secondary-foreground: oklch(0.7 0.005 65);
+  --muted: oklch(0.274 0.006 286.033);
+  --muted-foreground: oklch(0.705 0.015 286.067);
+  --accent: oklch(0.274 0.006 286.033);
+  --accent-foreground:  oklch(0.92 0.005 65);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.488 0.243 264.376);
+  --chart-1: var(--color-blue-300);
+  --chart-2: var(--color-blue-500);
+  --chart-3: var(--color-blue-600);
+  --chart-4: var(--color-blue-700);
+  --chart-5: var(--color-blue-800);
+  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar-foreground: oklch(0.85 0.005 65);
+  --sidebar-accent: oklch(0.274 0.006 286.033);
+  --sidebar-accent-foreground:  oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.488 0.243 264.376);
 }
 
 @layer base {
@@ -118,53 +135,191 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Roboto', sans-serif;
   }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Oswald', sans-serif;
-    letter-spacing: -0.02em;
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
   }
 }
 
 @layer components {
-  .glass {
-    @apply backdrop-blur-md bg-white/5 border border-white/10;
-  }
-  
-  .animate-shine {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .animate-shine::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(
-      to right,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
-    animation: shine 3s infinite;
-  }
-
+  /**
+   * Custom container utility that centers content and adds responsive padding.
+   *
+   * This overrides Tailwind's default container behavior to:
+   * - Auto-center content (mx-auto)
+   * - Add responsive horizontal padding
+   * - Set max-width for large screens
+   *
+   * Usage: <div className="container">...</div>
+   *
+   * For custom widths, use max-w-* utilities directly:
+   * <div className="max-w-6xl mx-auto px-4">...</div>
+   */
   .container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Tipografia - Roboto */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  body, p, span, div {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+  }
+  
+  button, label, [role="button"] {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
   }
 
-  /* Custom scrollbar for organic dark theme */
-  ::-webkit-scrollbar {
-    width: 6px;
+  .flex {
+    min-height: 0;
+    min-width: 0;
   }
-  ::-webkit-scrollbar-track {
-    @apply bg-background;
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem; /* 24px - tablet padding */
+      padding-right: 1.5rem;
+    }
   }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem; /* 32px - desktop padding */
+      padding-right: 2rem;
+      max-width: 1280px; /* Standard content width */
+    }
+  }
+}
+
+/* Animações e Micro-interações */
+@layer components {
+  /* Fade-in suave para cards */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Scale-in para elementos */
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Slide da direita para drawer */
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  /* Animação de respiração para ícones */
+  @keyframes breathe {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  /* Hover elevation para cards */
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-lg hover:translate-y-[-2px];
+  }
+
+  /* Botão com feedback tátil */
+  .button-tap {
+    @apply active:scale-95 transition-transform duration-100;
+  }
+
+  /* Input com focus ring verde */
+  .input-focus {
+    @apply focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200;
+  }
+
+  /* Badge com animação */
+  .badge-animate {
+    @apply animate-pulse;
+  }
+
+  /* Drawer overlay */
+  .drawer-overlay {
+    @apply fixed inset-0 bg-black/20 transition-opacity duration-300;
+  }
+
+  /* Drawer content */
+  .drawer-content {
+    @apply transform transition-transform duration-300 ease-in-out;
+  }
+
+  /* Stepper button hover */
+  .stepper-button {
+    @apply transition-all duration-200 hover:scale-105;
+  }
+
+  /* Product card animation */
+  .product-card {
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  /* Status badge colors */
+  .badge-pending {
+    @apply bg-yellow-50 text-yellow-800 border border-yellow-200;
+  }
+
+  .badge-confirmed {
+    @apply bg-green-50 text-green-800 border border-green-200;
+  }
+
+  .badge-cancelled {
+    @apply bg-red-50 text-red-800 border border-red-200;
+  }
+
+  /* Smooth transitions */
+  .transition-smooth {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  .transition-smooth-fast {
+    @apply transition-all duration-150 ease-in-out;
+  }
+
+  .transition-smooth-slow {
+    @apply transition-all duration-300 ease-in-out;
   }
 }
