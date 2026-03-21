@@ -2,27 +2,23 @@ import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import ProductCard, { Product } from '@/components/ProductCard';
 import CartDrawer from '@/components/CartDrawer';
+import { Leaf } from 'lucide-react';
 
 /**
  * Página Principal - Catálogo de Produtos
- * Design: Minimalismo Corporativo Moderno
- * - Header fixo no topo com ícones
- * - Grid responsivo de produtos
- * - Fundo em cinza ultra-claro para destacar cards brancos
- * - Drawer de carrinho desliza da direita
+ * Design: Premium Farm Edition (Organic Dark / Gold)
  */
 export default function Catalog() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
 
-  // Simular carregamento de produtos
   useEffect(() => {
     const mockProducts: Product[] = [
       {
         id: '1',
         name: 'Wolf Limited',
         price: 12.00,
-        description: 'Produto premium em lote',
+        description: 'Seleção premium para clientes exigentes.',
         tipo_incremento: 5,
         isBundle: true,
         pixKey: 'wolf-pix-key-123',
@@ -31,7 +27,7 @@ export default function Catalog() {
         id: '2',
         name: 'KS',
         price: 15.00,
-        description: 'Produto especial em lote',
+        description: 'Lote exclusivo de colheita selecionada.',
         tipo_incremento: 5,
         isBundle: true,
         pixKey: 'ks-pix-key-456',
@@ -40,93 +36,103 @@ export default function Catalog() {
         id: '3',
         name: 'Wolf Turbo',
         price: 6.00,
-        description: 'Produto unitário',
+        description: 'Fresco, direto da terra para sua mesa.',
         tipo_incremento: 25,
         pixKey: 'prod-a-pix-789',
       },
       {
         id: '4',
-        name: 'Produto B',
+        name: 'Produto Orgânico B',
         price: 22.50,
-        description: 'Produto unitário',
+        description: 'Sabor autêntico e qualidade garantida.',
         tipo_incremento: 1,
         pixKey: 'prod-b-pix-012',
       },
       {
         id: '5',
-        name: 'Produto C',
+        name: 'Produto Orgânico C',
         price: 18.00,
-        description: 'Produto unitário',
+        description: 'Produção artesanal com amor.',
         tipo_incremento: 1,
         pixKey: 'prod-c-pix-345',
       },
       {
         id: '6',
-        name: 'Produto D',
+        name: 'Produto Orgânico D',
         price: 28.00,
-        description: 'Produto unitário',
+        description: 'O melhor da estação disponível hoje.',
         tipo_incremento: 1,
         pixKey: 'prod-d-pix-678',
-      },
-      {
-        id: '7',
-        name: 'Produto E',
-        price: 32.00,
-        description: 'Produto unitário',
-        tipo_incremento: 1,
-        pixKey: 'prod-e-pix-901',
-      },
-      {
-        id: '8',
-        name: 'Produto F',
-        price: 25.00,
-        description: 'Produto unitário',
-        tipo_incremento: 1,
-        pixKey: 'prod-f-pix-234',
       },
     ];
     setProducts(mockProducts);
   }, []);
 
   return (
-    <div className="min-h-screen bg-secondary">
-      {/* Header */}
+    <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
+      {/* Dynamic Header */}
       <Header
         onCartClick={() => setIsCartOpen(true)}
         onOrdersClick={() => {}}
         onProfileClick={() => {}}
       />
 
-      {/* Conteúdo Principal */}
-      <main className="pt-20 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Título */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
-              Catálogo de Produtos
-            </h1>
-            <p className="text-muted-foreground">
-              Selecione os produtos desejados e confirme seu pedido
-            </p>
+      {/* Main Content */}
+      <main className="pt-32 pb-24">
+        <div className="container">
+          {/* Section Hero/Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-2 text-primary font-bold tracking-[0.2em] uppercase text-xs mb-3">
+                <Leaf className="w-4 h-4" />
+                <span>Colheita do Dia</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-4 italic">
+                Mercado <span className="text-primary not-italic">Premium</span>
+              </h1>
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                Produtos selecionados com rigorosa qualidade orgânica. 
+                Escolha seus itens abaixo e confirme seu pedido via PIX.
+              </p>
+            </div>
+            
+            <div className="hidden lg:block">
+               <div className="h-px w-24 bg-primary/20 mb-4" />
+               <p className="text-[10px] text-primary/40 uppercase tracking-widest font-black text-right">
+                 Fazendeiro Market <br/> Est. 2026
+               </p>
+            </div>
           </div>
 
-
-          {/* Grid de Produtos */}
+          {/* Product Grid */}
           {products.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {products.map((product, index) => (
+                <div 
+                  key={product.id}
+                  className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <ProductCard product={product} />
+                </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Carregando produtos...</p>
+            <div className="flex flex-col items-center justify-center py-32 text-center">
+              <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6" />
+              <p className="text-muted-foreground font-medium tracking-wide">
+                Preparando os produtos da fazenda...
+              </p>
             </div>
           )}
         </div>
       </main>
 
-      {/* Drawer de Carrinho */}
+      {/* Background Decorative Elements */}
+      <div className="fixed top-0 right-0 -z-10 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-0 left-0 -z-10 w-[400px] h-[400px] bg-primary/3 rounded-full blur-[100px] pointer-events-none" />
+
+      {/* Cart Drawer Overlay & Content */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
