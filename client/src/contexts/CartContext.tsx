@@ -1,12 +1,25 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export interface CartItem {
   productId: string;
   name: string;
   price: number;
   quantity: number;
-  incrementType: number; // 1 ou 5
+  incrementType: number;
   pixKey?: string;
+}
+
+export type OrderStatus =
+  | 'pending_payment'
+  | 'paid'
+  | 'released'
+  | 'cancelled'
+  | 'expired';
+
+export interface OrderCustomer {
+  userId: string;
+  name: string;
+  phone: string;
 }
 
 export interface Order {
@@ -15,8 +28,9 @@ export interface Order {
   total: number;
   deliveryDate: string;
   deliveryTime: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: OrderStatus;
   createdAt: string;
+  customer: OrderCustomer;
 }
 
 interface CartContextType {
@@ -29,6 +43,7 @@ interface CartContextType {
   getCartCount: () => number;
   orders: Order[];
   addOrder: (order: Order) => void;
+  updateOrderStatus: (orderId: string, status: OrderStatus) => void;
   cancelOrder: (orderId: string) => void;
 }
 
@@ -37,11 +52,65 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 const CART_STORAGE_KEY = 'cart_items';
 const ORDERS_STORAGE_KEY = 'orders';
 
+function normalizeStoredOrder(value: any): Order | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const legacyStatusMap: Record<string, OrderStatus> = {
+    pending: 'pending_payment',
+    confirmed: 'paid',
+    cancelled: 'cancelled',
+    pending_payment: 'pending_payment',
+    paid: 'paid',
+    released: 'released',
+    expired: 'expired',
+  };
+
+  if (!value.id || !Array.isArray(value.items)) {
+    return null;
+  }
+
+  return {
+    id: String(value.id),
+    items: value.items,
+    total: Number(value.total ?? 0),
+    deliveryDate: String(value.deliveryDate ?? ''),
+    deliveryTime: String(value.deliveryTime ?? ''),
+    status: legacyStatusMap[String(value.status)] ?? 'pending_payment',
+    createdAt: String(value.createdAt ?? new Date().toISOString()),
+    customer: {
+      userId: String(value.customer?.userId ?? 'legacy-customer'),
+      name: String(value.customer?.name ?? 'Cliente legado'),
+      phone: String(value.customer?.phone ?? 'nao informado'),
+    },
+  };
+}
+
+function parseStoredOrders(rawValue: string | null) {
+  if (!rawValue) {
+    return [];
+  }
+
+  try {
+    const parsedValue = JSON.parse(rawValue);
+    if (!Array.isArray(parsedValue)) {
+      return [];
+    }
+
+    return parsedValue
+      .map((order) => normalizeStoredOrder(order))
+      .filter((order): order is Order => order !== null);
+  } catch (error) {
+    console.error('Erro ao restaurar pedidos:', error);
+    return [];
+  }
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
 
-  // Carregar carrinho do localStorage ao montar
   useEffect(() => {
     const savedCart = localStorage.getItem(CART_STORAGE_KEY);
     if (savedCart) {
@@ -53,21 +122,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
 
     const savedOrders = localStorage.getItem(ORDERS_STORAGE_KEY);
-    if (savedOrders) {
-      try {
-        setOrders(JSON.parse(savedOrders));
-      } catch (error) {
-        console.error('Erro ao restaurar pedidos:', error);
-      }
-    }
+    setOrders(parseStoredOrders(savedOrders));
   }, []);
 
-  // Salvar carrinho no localStorage sempre que mudar
+  useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === CART_STORAGE_KEY && event.newValue) {
+        setCartItems(JSON.parse(event.newValue));
+      }
+
+      if (event.key === ORDERS_STORAGE_KEY && event.newValue) {
+        setOrders(parseStoredOrders(event.newValue));
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Salvar pedidos no localStorage sempre que mudar
   useEffect(() => {
     localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
   }, [orders]);
@@ -121,12 +197,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setOrders((prevOrders) => [order, ...prevOrders]);
   };
 
-  const cancelOrder = (orderId: string) => {
+  const updateOrderStatus = (orderId: string, status: OrderStatus) => {
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
-        order.id === orderId ? { ...order, status: 'cancelled' } : order
+        order.id === orderId ? { ...order, status } : order
       )
     );
+  };
+
+  const cancelOrder = (orderId: string) => {
+    updateOrderStatus(orderId, 'cancelled');
   };
 
   return (
@@ -141,6 +221,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         getCartCount,
         orders,
         addOrder,
+        updateOrderStatus,
         cancelOrder,
       }}
     >

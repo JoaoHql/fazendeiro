@@ -1,9 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
+export type UserRole = 'customer' | 'admin';
 
 export interface User {
   id: string;
   phone: string;
-  name?: string;
+  name: string;
+  role: UserRole;
 }
 
 interface AuthContextType {
@@ -15,18 +18,52 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const MOCK_USERS: Array<User & { password: string }> = [
+  {
+    id: 'admin-1',
+    phone: 'admin',
+    name: 'Administrador',
+    role: 'admin',
+    password: 'admin123',
+  },
+  {
+    id: 'customer-1',
+    phone: 'cliente',
+    name: 'Cliente',
+    role: 'customer',
+    password: '123456',
+  },
+];
+
+function normalizeStoredUser(value: unknown): User | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const candidate = value as Partial<User>;
+  if (!candidate.id || !candidate.phone) {
+    return null;
+  }
+
+  return {
+    id: candidate.id,
+    phone: candidate.phone,
+    name: candidate.name ?? 'Cliente',
+    role: candidate.role === 'admin' ? 'admin' : 'customer',
+  };
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Verificar se há usuário salvo no localStorage ao carregar
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        setUser(normalizeStoredUser(JSON.parse(savedUser)));
       } catch (error) {
-        console.error('Erro ao restaurar usuário:', error);
+        console.error('Erro ao restaurar usuario:', error);
         localStorage.removeItem('user');
       }
     }
@@ -36,16 +73,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (phone: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simular chamada de API
-      // Em produção, isso seria uma chamada real ao backend
-      const mockUser: User = {
-        id: '1',
-        phone,
-        name: 'Cliente',
+      const normalizedPhone = phone.trim().toLowerCase();
+      const matchedUser = MOCK_USERS.find(
+        (candidate) =>
+          candidate.phone.toLowerCase() === normalizedPhone &&
+          candidate.password === password
+      );
+
+      if (!matchedUser) {
+        throw new Error('Credenciais invalidas');
+      }
+
+      const authenticatedUser: User = {
+        id: matchedUser.id,
+        phone: matchedUser.phone,
+        name: matchedUser.name,
+        role: matchedUser.role,
       };
-      
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
+
+      setUser(authenticatedUser);
+      localStorage.setItem('user', JSON.stringify(authenticatedUser));
     } finally {
       setIsLoading(false);
     }

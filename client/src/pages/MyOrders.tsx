@@ -1,15 +1,44 @@
-import Header from '@/components/Header';
-import { useCart, Order } from '@/contexts/CartContext';
-import { Button } from '@/components/ui/button';
-import { AlertCircle, Copy, CheckCircle2, Clock, Calendar, Package } from 'lucide-react';
+import {
+  AlertCircle,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  Copy,
+  Package,
+  ShieldCheck,
+  Truck,
+} from 'lucide-react';
 import { toast } from 'sonner';
+import Header from '@/components/Header';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart, type Order } from '@/contexts/CartContext';
+import {
+  getOrderLifecycleStatus,
+  getOrderStatusTone,
+  ORDER_STATUS_LABELS,
+} from '@/lib/order-status';
 import { cn } from '@/lib/utils';
 
-/**
- * Página Meus Pedidos - Premium Farm Edition
- */
+function getStatusIcon(status: Order['status']) {
+  switch (status) {
+    case 'pending_payment':
+      return <Clock className="h-3 w-3" />;
+    case 'paid':
+      return <CheckCircle2 className="h-3 w-3" />;
+    case 'released':
+      return <Truck className="h-3 w-3" />;
+    case 'cancelled':
+    case 'expired':
+      return <AlertCircle className="h-3 w-3" />;
+  }
+}
+
 export default function MyOrders() {
+  const { user } = useAuth();
   const { orders, cancelOrder } = useCart();
+
+  const customerOrders = orders.filter((order) => order.customer.userId === user?.id);
 
   const handleCancelOrder = (orderId: string) => {
     cancelOrder(orderId);
@@ -18,46 +47,7 @@ export default function MyOrders() {
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    toast.success(`${label} copiada para a área de transferência`);
-  };
-
-  const isOrderExpired = (order: Order) => {
-    if (order.status !== 'pending') return false;
-    const [year, month, day] = order.deliveryDate.split('-').map(Number);
-    const [hours, minutes] = order.deliveryTime.split(':').map(Number);
-    const deliveryDateTime = new Date(year, month - 1, day, hours, minutes, 0, 0);
-    const now = new Date();
-    const limitTime = new Date(deliveryDateTime.getTime() - 90 * 60 * 1000);
-    return now > limitTime;
-  };
-
-  const getStatusBadge = (order: Order) => {
-    const isExpired = isOrderExpired(order);
-    const status = isExpired ? 'cancelled' : order.status;
-
-    switch (status) {
-      case 'pending':
-        return {
-          bg: 'bg-yellow-500/10',
-          text: 'text-yellow-500',
-          label: 'Aguardando PIX',
-          icon: <Clock className="w-3 h-3" />
-        };
-      case 'confirmed':
-        return {
-          bg: 'bg-green-500/10',
-          text: 'text-green-500',
-          label: 'Pago e Confirmado',
-          icon: <CheckCircle2 className="w-3 h-3" />
-        };
-      case 'cancelled':
-        return {
-          bg: 'bg-red-500/10',
-          text: 'text-red-500',
-          label: isExpired ? 'Cancelado (Expirado)' : 'Cancelado',
-          icon: <AlertCircle className="w-3 h-3" />
-        };
-    }
+    toast.success(`${label} copiada para a area de transferencia`);
   };
 
   const formatDate = (dateString: string) => {
@@ -66,130 +56,148 @@ export default function MyOrders() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header
-        onCartClick={() => {}}
-        onOrdersClick={() => {}}
-        onProfileClick={() => {}}
-      />
+      <Header onCartClick={() => {}} onOrdersClick={() => {}} onProfileClick={() => {}} />
 
-      <main className="pt-32 pb-24">
+      <main className="pb-24 pt-32">
         <div className="container max-w-4xl">
-          {/* Section Header */}
           <div className="mb-12">
-             <div className="flex items-center gap-2 text-primary font-bold tracking-[0.2em] uppercase text-xs mb-3">
-                <Package className="w-4 h-4" />
-                <span>Gestão de Reservas</span>
-              </div>
-            <h1 className="text-4xl font-black tracking-tighter mb-2 italic">
+            <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+              <Package className="h-4 w-4" />
+              <span>Gestao de Reservas</span>
+            </div>
+            <h1 className="mb-2 text-4xl font-black italic tracking-tighter">
               Meus <span className="text-primary not-italic">Pedidos</span>
             </h1>
-            <p className="text-muted-foreground text-lg">
-              Acompanhe o status de suas colheitas e realize o pagamento.
+            <p className="text-lg text-muted-foreground">
+              Acompanhe o pagamento, a liberacao e o andamento de cada reserva.
             </p>
           </div>
 
-          {orders.length === 0 ? (
-            <div className="bg-card rounded-3xl p-16 text-center border border-white/5 shadow-2xl">
-              <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
-                <AlertCircle className="w-10 h-10 text-muted-foreground/30" />
+          {customerOrders.length === 0 ? (
+            <div className="rounded-3xl border border-white/5 bg-card p-16 text-center shadow-2xl">
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
+                <AlertCircle className="h-10 w-10 text-muted-foreground/30" />
               </div>
-              <p className="text-muted-foreground font-medium mb-8">
-                Sua lista de histórico está vazia no momento.
+              <p className="mb-8 font-medium text-muted-foreground">
+                Seu historico de pedidos esta vazio no momento.
               </p>
               <Button
-                onClick={() => window.location.href = '/'}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 h-12 rounded-xl font-black uppercase tracking-widest text-xs"
+                onClick={() => (window.location.href = '/')}
+                className="h-12 rounded-xl bg-primary px-8 text-xs font-black uppercase tracking-widest text-primary-foreground hover:bg-primary/90"
               >
-                Explorar Catálogo
+                Explorar Catalogo
               </Button>
             </div>
           ) : (
             <div className="grid gap-8">
-              {orders.map((order) => {
-                const isExpired = isOrderExpired(order);
-                const status = getStatusBadge(order);
+              {customerOrders.map((order) => {
+                const lifecycleStatus = getOrderLifecycleStatus(order);
+                const statusTone = getOrderStatusTone(lifecycleStatus);
 
                 return (
                   <div
                     key={order.id}
-                    className="group bg-card rounded-3xl border border-white/5 hover:border-primary/20 transition-all duration-300 shadow-xl overflow-hidden"
+                    className="group overflow-hidden rounded-3xl border border-white/5 bg-card shadow-xl transition-all duration-300 hover:border-primary/20"
                   >
-                    {/* Upper Section */}
                     <div className="p-8 pb-0">
-                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                      <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
                         <div>
-                          <div className="flex items-center gap-3 mb-2">
-                             <h3 className="text-xl font-black tracking-tight text-foreground/90">
+                          <div className="mb-2 flex items-center gap-3">
+                            <h3 className="text-xl font-black tracking-tight text-foreground/90">
                               #{order.id.slice(0, 8).toUpperCase()}
                             </h3>
-                            <div className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5", status.bg, status.text)}>
-                              {status.icon}
-                              {status.label}
+                            <div
+                              className={cn(
+                                'flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest',
+                                statusTone.bg,
+                                statusTone.text
+                              )}
+                            >
+                              {getStatusIcon(lifecycleStatus)}
+                              {ORDER_STATUS_LABELS[lifecycleStatus]}
                             </div>
                           </div>
-                          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                             Realizado em {new Date(order.createdAt).toLocaleString('pt-BR')}
                           </p>
                         </div>
                         <div className="text-left md:text-right">
-                           <p className="text-[10px] text-primary/40 uppercase tracking-widest font-black mb-1">Valor Total</p>
-                           <p className="text-3xl font-black text-primary tracking-tighter">
+                          <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-primary/40">
+                            Valor Total
+                          </p>
+                          <p className="text-3xl font-black tracking-tighter text-primary">
                             R$ {order.total.toFixed(2)}
                           </p>
                         </div>
                       </div>
 
-                      {/* Info Bar */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-secondary/50 rounded-2xl border border-white/5 mb-8">
-                         <div className="space-y-1">
-                            <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest flex items-center gap-1.5">
-                               <Calendar className="w-3 h-3" /> Entrega
-                            </span>
-                            <p className="text-sm font-bold">{formatDate(order.deliveryDate)}</p>
-                         </div>
-                         <div className="space-y-1">
-                            <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest flex items-center gap-1.5">
-                               <Clock className="w-3 h-3" /> Horário
-                            </span>
-                            <p className="text-sm font-bold">{order.deliveryTime}</p>
-                         </div>
-                         <div className="col-span-2 space-y-1">
-                            <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest flex items-center gap-1.5">
-                               <CheckCircle2 className="w-3 h-3" /> Pagamento
-                            </span>
-                            <p className={cn("text-sm font-black italic", order.status === 'confirmed' ? "text-green-500" : "text-yellow-500/70")}>
-                               {order.status === 'confirmed' ? "Confirmado" : "Aguardando PIX"}
-                            </p>
-                         </div>
+                      <div className="mb-8 grid grid-cols-2 gap-4 rounded-2xl border border-white/5 bg-secondary/50 p-4 md:grid-cols-4">
+                        <div className="space-y-1">
+                          <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                            <Calendar className="h-3 w-3" /> Entrega
+                          </span>
+                          <p className="text-sm font-bold">{formatDate(order.deliveryDate)}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                            <Clock className="h-3 w-3" /> Horario
+                          </span>
+                          <p className="text-sm font-bold">{order.deliveryTime}</p>
+                        </div>
+                        <div className="col-span-2 space-y-1">
+                          <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                            <ShieldCheck className="h-3 w-3" /> Fluxo
+                          </span>
+                          <p className={cn('text-sm font-black italic', statusTone.text)}>
+                            {lifecycleStatus === 'pending_payment' &&
+                              'Aguardando pagamento e validacao do admin'}
+                            {lifecycleStatus === 'paid' &&
+                              'Pagamento aprovado, aguardando liberacao'}
+                            {lifecycleStatus === 'released' &&
+                              'Pedido liberado para entrega'}
+                            {lifecycleStatus === 'cancelled' && 'Pedido cancelado'}
+                            {lifecycleStatus === 'expired' && 'Prazo de pagamento expirado'}
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-                    {/* PIX Keys Section */}
                     <div className="bg-background/30 p-8 pt-0">
-                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-4">Itens & Chaves de Pagamento</h4>
+                      <h4 className="mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                        Itens e Chaves de Pagamento
+                      </h4>
                       <div className="grid gap-3">
                         {order.items.map((item) => (
-                          <div key={item.productId} className="bg-secondary/30 rounded-2xl p-4 border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div
+                            key={item.productId}
+                            className="flex flex-col justify-between gap-4 rounded-2xl border border-white/5 bg-secondary/30 p-4 sm:flex-row sm:items-center"
+                          >
                             <div className="flex items-center gap-4">
-                               <div className="w-10 h-10 bg-primary/5 rounded-xl flex items-center justify-center text-primary font-black text-xs">
-                                  {item.quantity}x
-                               </div>
-                               <div>
-                                  <p className="font-bold text-foreground/80 leading-tight">{item.name}</p>
-                                  <p className="text-xs text-primary font-black tracking-tight">R$ {(item.price * item.quantity).toFixed(2)}</p>
-                               </div>
+                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/5 text-xs font-black text-primary">
+                                {item.quantity}x
+                              </div>
+                              <div>
+                                <p className="leading-tight font-bold text-foreground/80">
+                                  {item.name}
+                                </p>
+                                <p className="text-xs font-black tracking-tight text-primary">
+                                  R$ {(item.price * item.quantity).toFixed(2)}
+                                </p>
+                              </div>
                             </div>
 
-                            {item.pixKey && order.status === 'pending' && !isExpired && (
-                              <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 p-2 pl-4 rounded-xl flex-1 sm:max-w-[240px]">
-                                <code className="text-[10px] font-mono truncate flex-1 text-primary/80">{item.pixKey}</code>
+                            {item.pixKey && lifecycleStatus === 'pending_payment' && (
+                              <div className="flex flex-1 items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 p-2 pl-4 sm:max-w-[240px]">
+                                <code className="flex-1 truncate text-[10px] font-mono text-primary/80">
+                                  {item.pixKey}
+                                </code>
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => copyToClipboard(item.pixKey!, `PIX ${item.name}`)}
-                                  className="h-8 w-8 p-0 hover:bg-primary/20 text-primary"
+                                  className="h-8 w-8 p-0 text-primary hover:bg-primary/20"
                                 >
-                                  <Copy className="w-3 h-3" />
+                                  <Copy className="h-3 w-3" />
                                 </Button>
                               </div>
                             )}
@@ -198,23 +206,24 @@ export default function MyOrders() {
                       </div>
                     </div>
 
-                    {/* Footer Actions */}
-                    <div className="p-6 bg-secondary/20 flex flex-col sm:flex-row gap-4">
-                      {order.status === 'pending' && !isExpired && (
+                    <div className="flex flex-col gap-4 bg-secondary/20 p-6 sm:flex-row">
+                      {lifecycleStatus === 'pending_payment' && (
                         <Button
                           onClick={() => handleCancelOrder(order.id)}
                           variant="ghost"
-                          className="flex-1 h-12 text-red-500 hover:bg-red-500/10 font-bold uppercase tracking-widest text-[10px] rounded-xl"
+                          className="h-12 flex-1 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-500/10"
                         >
                           Cancelar Pedido
                         </Button>
                       )}
                       <Button
                         variant="secondary"
-                        className="flex-1 h-12 bg-white/5 hover:bg-white/10 text-foreground font-bold uppercase tracking-widest text-[10px] rounded-xl border border-white/5"
-                        onClick={() => toast.info(`Pedido #${order.id.slice(0, 8).toUpperCase()}`)}
+                        className="h-12 flex-1 rounded-xl border border-white/5 bg-white/5 text-[10px] font-bold uppercase tracking-widest text-foreground hover:bg-white/10"
+                        onClick={() =>
+                          toast.info(`Status atual: ${ORDER_STATUS_LABELS[lifecycleStatus]}`)
+                        }
                       >
-                        Ver Detalhes Completos
+                        Ver Atualizacao
                       </Button>
                     </div>
                   </div>
