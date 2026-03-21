@@ -18,19 +18,17 @@ interface ProductCardProps {
 
 /**
  * Card de Produto
- * Design: Minimalismo Corporativo Moderno
- * - Sincronizado com o Carrinho para manter o valor atualizado
+ * Design: Minimalismo Corporativo Moderno (Original)
+ * - Sincronizado com o Carrinho para exibir subtotal correto
  */
 export default function ProductCard({ product }: ProductCardProps) {
   const { cartItems, addToCart, updateCartItem } = useCart();
   
-  // Buscar quantidade atual no carrinho
+  // Buscar quantidade atual no carrinho (Fonte da verdade)
   const cartItem = cartItems.find(item => item.productId === product.id);
   const quantity = cartItem ? cartItem.quantity : 0;
 
   const handleIncrement = () => {
-    const newQuantity = quantity + product.tipo_incremento;
-    
     if (quantity === 0) {
       addToCart({
         productId: product.id,
@@ -41,14 +39,13 @@ export default function ProductCard({ product }: ProductCardProps) {
         pixKey: product.pixKey,
       });
     } else {
-      updateCartItem(product.id, newQuantity);
+      updateCartItem(product.id, quantity + product.tipo_incremento);
     }
   };
 
   const handleDecrement = () => {
     if (quantity > 0) {
-      const newQuantity = Math.max(0, quantity - product.tipo_incremento);
-      updateCartItem(product.id, newQuantity);
+      updateCartItem(product.id, Math.max(0, quantity - product.tipo_incremento));
     }
   };
 
@@ -77,21 +74,16 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       )}
 
-      {/* Preço */}
+      {/* Preço e Subtotal Corrigido */}
       <div className="mb-6">
-        <div className="flex justify-between items-baseline">
-          <p className="text-2xl font-bold text-primary">
-            R$ {product.price.toFixed(2)}
-          </p>
-          {quantity > 0 && (
-            <p className="text-sm font-semibold text-muted-foreground">
-              Total: R$ {subtotal.toFixed(2)}
-            </p>
-          )}
-        </div>
-        <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">
-          {quantity > 0 ? `${quantity} unidades selecionadas` : 'Preço unitário'}
+        <p className="text-2xl font-bold text-primary">
+          R$ {product.price.toFixed(2)}
         </p>
+        {quantity > 0 && (
+          <p className="text-sm font-semibold text-muted-foreground mt-1">
+            Subtotal ({quantity}x): R$ {subtotal.toFixed(2)}
+          </p>
+        )}
       </div>
 
       {/* Stepper de Quantidade */}
@@ -126,7 +118,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* Incremento Info */}
       <p className="text-xs text-muted-foreground mt-3 text-center">
-        Adicionar em lotes de {product.tipo_incremento}
+        Incremento: {product.tipo_incremento} unidade{product.tipo_incremento > 1 ? 's' : ''}
       </p>
     </div>
   );
