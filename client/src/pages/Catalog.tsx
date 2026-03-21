@@ -16,8 +16,8 @@ export default function Catalog() {
     const mockProducts: Product[] = [
       {
         id: '1',
-        name: 'Wolf Bundle',
-        price: 45.00,
+        name: 'Wolf Limited',
+        price: 12.00,
         description: 'Seleção premium para clientes exigentes.',
         tipo_incremento: 5,
         isBundle: true,
@@ -25,8 +25,8 @@ export default function Catalog() {
       },
       {
         id: '2',
-        name: 'KS Special',
-        price: 35.00,
+        name: 'KS',
+        price: 15.00,
         description: 'Lote exclusivo de colheita selecionada.',
         tipo_incremento: 5,
         isBundle: true,
@@ -34,10 +34,10 @@ export default function Catalog() {
       },
       {
         id: '3',
-        name: 'Produto Orgânico A',
-        price: 15.00,
+        name: 'Wolf Turbo',
+        price: 6.00,
         description: 'Fresco, direto da terra para sua mesa.',
-        tipo_incremento: 1,
+        tipo_incremento: 25,
         pixKey: 'prod-a-pix-789',
       },
       {
