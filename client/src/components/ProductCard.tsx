@@ -8,8 +8,8 @@ export interface Product {
   name: string;
   price: number;
   description?: string;
-  tipo_incremento: number; // 1 ou 5
-  isBundle?: boolean; // Para produtos como Wolf e KS
+  tipo_incremento: number; 
+  isBundle?: boolean; 
   pixKey?: string;
 }
 
@@ -17,22 +17,15 @@ interface ProductCardProps {
   product: Product;
 }
 
-/**
- * Card de Produto - Premium Farm Edition
- * Design: Organic Dark / Gold
- * - Sincronizado com o Carrinho (Single Source of Truth)
- * - Mostra o Subtotal (Preço x Quantidade Atual)
- */
 export default function ProductCard({ product }: ProductCardProps) {
   const { cartItems, addToCart, updateCartItem } = useCart();
   
-  // Buscar quantidade atual do carrinho para este produto (Fonte da verdade)
+  // Fonte única da verdade: Carrinho
   const cartItem = cartItems.find(item => item.productId === product.id);
-  const quantity = cartItem ? cartItem.quantity : 0;
+  const currentQty = cartItem ? cartItem.quantity : 0;
 
   const handleIncrement = () => {
-    if (quantity === 0) {
-      // Primeira adição ao carrinho
+    if (currentQty === 0) {
       addToCart({
         productId: product.id,
         name: product.name,
@@ -42,27 +35,22 @@ export default function ProductCard({ product }: ProductCardProps) {
         pixKey: product.pixKey,
       });
     } else {
-      // Atualiza quantidade existente
-      updateCartItem(product.id, quantity + product.tipo_incremento);
+      updateCartItem(product.id, currentQty + product.tipo_incremento);
     }
   };
 
   const handleDecrement = () => {
-    if (quantity > 0) {
-      updateCartItem(product.id, Math.max(0, quantity - product.tipo_incremento));
+    if (currentQty > 0) {
+      updateCartItem(product.id, Math.max(0, currentQty - product.tipo_incremento));
     }
   };
 
-  // Cálculo do Subtotal: Preço Unitário x Quantidade Atual
-  const subtotal = product.price * quantity;
+  // Cálculo garantido
+  const totalValue = (product.price * currentQty).toFixed(2);
 
   return (
-    <div className="group relative bg-card rounded-2xl overflow-hidden border border-white/5 hover:border-primary/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] hover:-translate-y-1">
-      {/* Decorative Gradient Background */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-primary/10 transition-colors" />
-      
+    <div className="group relative bg-card rounded-2xl overflow-hidden border border-white/5 hover:border-primary/20 transition-all duration-300 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
       <div className="p-6 relative z-10">
-        {/* Header Section */}
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
             <h3 className="text-xl font-bold tracking-tight text-foreground/90 group-hover:text-primary transition-colors">
@@ -79,37 +67,35 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
 
-        {/* Pricing & Tag */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <p className="text-2xl font-black text-primary">
               R$ {product.price.toFixed(2)}
             </p>
-            {quantity > 0 && (
+            {currentQty > 0 && (
               <p className="text-[10px] font-black text-primary/60 tracking-widest uppercase mt-1 animate-in fade-in slide-in-from-left-2">
-                Subtotal ({quantity}x): R$ {subtotal.toFixed(2)}
+                SUBTOTAL ( {currentQty} X ): R$ {totalValue}
               </p>
             )}
           </div>
 
           {product.isBundle && (
             <span className="animate-shine bg-secondary border border-primary/20 text-primary text-[10px] font-black px-2.5 py-1 rounded-full tracking-widest uppercase shadow-sm">
-              Lote +{product.tipo_incremento}
+              LOTE +{product.tipo_incremento}
             </span>
           )}
         </div>
 
-        {/* Action Section - Stepper */}
         <div className="space-y-3">
-          <div className="flex items-center gap-2 p-1 bg-background/50 rounded-xl border border-white/5 group-hover:border-primary/10 transition-colors">
+          <div className="flex items-center gap-2 p-1 bg-background/50 rounded-xl border border-white/5">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleDecrement}
-              disabled={quantity === 0}
+              disabled={currentQty === 0}
               className={cn(
                 "w-10 h-10 rounded-lg transition-all",
-                quantity > 0 ? "text-foreground hover:bg-white/5 hover:text-destructive" : "text-muted-foreground/20"
+                currentQty > 0 ? "text-foreground hover:bg-white/5 hover:text-destructive" : "text-muted-foreground/20"
               )}
             >
               <Minus className="w-4 h-4" />
@@ -118,9 +104,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div className="flex-1 text-center">
               <span className={cn(
                 "text-lg font-black font-mono transition-all duration-300",
-                quantity > 0 ? "text-primary scale-110 inline-block" : "text-muted-foreground/20"
+                currentQty > 0 ? "text-primary scale-110" : "text-muted-foreground/20"
               )}>
-                {quantity.toString().padStart(2, '0')}
+                {currentQty.toString().padStart(2, '0')}
               </span>
             </div>
 
@@ -135,7 +121,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
           
           <p className="text-[10px] text-center text-muted-foreground uppercase tracking-[0.2em] font-medium opacity-50">
-            {quantity > 0 ? 'Ajustar quantidade' : `Adicionar ${product.tipo_incremento} por clique`}
+            ADICIONAR {product.tipo_incremento} POR CLIQUE
           </p>
         </div>
       </div>
